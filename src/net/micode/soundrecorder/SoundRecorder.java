@@ -102,6 +102,8 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
 
     private boolean mCanRequestChanged = false;
 
+    private boolean mUseCalEventsForNaming = false;
+
     private Recorder mRecorder;
 
     private RecorderReceiver mReceiver;
@@ -276,6 +278,8 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
         } else if (ANY_ANY.equals(mRequestedType)) {
             mRequestedType = AUDIO_3GPP;
         }
+
+        mUseCalEventsForNaming = SoundRecorderPreferenceActivity.useCalEventsForNaming(this);
     }
 
     @Override
@@ -377,7 +381,7 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
 
         // for audio which is used for mms, we can only use english file name
         // mShowFinishButon indicates whether this is an audio for mms
-        mFileNameEditText.initFileName(mRecorder.getRecordDir(), extension, mShowFinishButton);
+        mFileNameEditText.initFileName(mRecorder.getRecordDir(), extension, mShowFinishButton, SoundRecorderPreferenceActivity.useCalEventsForNaming(this));
     }
 
     private void startRecordPlayingAnimation() {
@@ -565,6 +569,13 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
     protected void onResume() {
         super.onResume();
         String type = SoundRecorderPreferenceActivity.getRecordType(this);
+        boolean useCalEventsForNaming = SoundRecorderPreferenceActivity.useCalEventsForNaming(this);
+
+        if (mUseCalEventsForNaming != useCalEventsForNaming) {
+            mUseCalEventsForNaming = useCalEventsForNaming;
+            resetFileNameEditText();
+        }
+
         if (mCanRequestChanged && !TextUtils.equals(type, mRequestedType)) {
             saveSample();
             mRecorder.reset();

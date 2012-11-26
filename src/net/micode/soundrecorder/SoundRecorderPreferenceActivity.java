@@ -29,6 +29,8 @@ public class SoundRecorderPreferenceActivity extends PreferenceActivity {
 
     private static final String ENABLE_SOUND_EFFECT = "pref_key_enable_sound_effect";
 
+    private static final String USE_CAL_EVENTS_FOR_NAMING = "pref_key_enable_use_calendar_events_for_naming";
+
     @Override
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -48,5 +50,10 @@ public class SoundRecorderPreferenceActivity extends PreferenceActivity {
     public static boolean isEnabledSoundEffect(Context context) {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
         return settings.getBoolean(ENABLE_SOUND_EFFECT, true);
+    }
+
+    public static boolean useCalEventsForNaming(Context context) {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(context);
+        return settings.getBoolean(USE_CAL_EVENTS_FOR_NAMING, true);
     }
 }

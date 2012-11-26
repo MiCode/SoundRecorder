@@ -37,5 +37,10 @@
             android:title="@string/pref_title_enable_sound_effect"
             android:summary="@string/pref_summary_enable_sound_effect"
             android:defaultValue="true" />
+        <CheckBoxPreference
+            android:key="pref_key_enable_use_calendar_events_for_naming"
+            android:title="@string/pref_title_use_calendar_events_for_naming"
+            android:summary="@string/pref_summary_use_calendar_events_for_naming"
+            android:defaultValue="true" />
     </PreferenceCategory>
 </PreferenceScreen>
