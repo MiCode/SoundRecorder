@@ -16,11 +16,8 @@
 
 package net.micode.soundrecorder;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
