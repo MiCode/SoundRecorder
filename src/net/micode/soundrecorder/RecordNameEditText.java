@@ -84,10 +84,7 @@ public class RecordNameEditText extends EditText {
             SimpleDateFormat dataFormat = new SimpleDateFormat("yyMMdd");
             String date = " [" + dataFormat.format(Calendar.getInstance().getTime()) + "]";
             setText(getProperFileName(defaultName + date));
-            return;
-        }
-
-        if (!englishOnly) {
+        } else if (!englishOnly) {
             setText(getProperFileName(mContext.getString(R.string.default_record_name)));
         } else {
             SimpleDateFormat dataFormat = new SimpleDateFormat("MMddHHmmss");
