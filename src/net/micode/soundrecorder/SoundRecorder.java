@@ -235,7 +235,7 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
         mSavedRecord = new HashSet<String>();
 
         mUseCalEventsForNaming = SoundRecorderPreferenceActivity.useCalEventsForNaming(this);
-        mNameVariants = getNameVariantsFromCalendarEvents();
+        updateNameVariants();
 
         initResourceRefs();
 
@@ -627,7 +627,6 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
             result.add(cur.getString(TITLE_NUM));
         }
 
-        resetDefaultName();
         return result;
     }
 
@@ -639,7 +638,9 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
         }
     }
 
-    private void resetDefaultName() {
+    private void updateNameVariants() {
+        mNameVariants = getNameVariantsFromCalendarEvents();
+
         if (mNameVariants != null && !mNameVariants.isEmpty()) {
             mDefaultFileName = mNameVariants.get(0);
         }
@@ -653,9 +654,11 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
 
         if (mUseCalEventsForNaming != useCalEventsForNaming) {
             mUseCalEventsForNaming = useCalEventsForNaming;
-            mNameVariants = getNameVariantsFromCalendarEvents();
+            updateNameVariants();
             resetFileNameEditText();
         }
+
+        updateChooseNameVisibility();
 
         if (mCanRequestChanged && !TextUtils.equals(type, mRequestedType)) {
             saveSample();
