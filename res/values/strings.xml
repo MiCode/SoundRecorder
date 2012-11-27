@@ -78,6 +78,9 @@
     <string name="sd_card_not_available">SD card is not available</string>
     <string name="open_file_explorer">Open file explorer</string>
     <string name="alert_message_delete_record">Do you want to delete selected record?</string>
+    <string name="pref_title_use_calendar_events_for_naming">Use cal for naming</string>
+    <string name="pref_summary_use_calendar_events_for_naming">Use calendar events for naming</string>
+    <string name="choose_file_name">Choose file name</string>
 
     <string-array name="prefEntries_recordType">
         <item>amr</item>

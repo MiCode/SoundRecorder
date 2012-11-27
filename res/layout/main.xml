@@ -102,13 +102,32 @@
                     android:focusable="true"
                     android:focusableInTouchMode="true" />
 
-                <net.micode.soundrecorder.RecordNameEditText
-                    android:id="@+id/file_name"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="220dip"
-                    android:layout_height="25dip"
-                    android:background="#00000000"
-                    android:selectAllOnFocus="true"
-                    android:singleLine="true" />
+                    android:layout_height="25dip">
+
+                    <net.micode.soundrecorder.RecordNameEditText
+                        android:id="@+id/file_name"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent"
+                        android:background="#00000000"
+                        android:selectAllOnFocus="true"
+                        android:singleLine="true"
+                        android:layout_weight="1"/>
+
+                    <ImageButton
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:id="@+id/choose_name"
+                        android:src="@drawable/options"
+                        android:focusableInTouchMode="false"
+                        android:visibility="visible"
+                        android:layout_marginTop="-2dp"
+                        android:layout_marginRight="-3dp"/>
+
+                </LinearLayout>
+
             </LinearLayout>
         </FrameLayout>
 

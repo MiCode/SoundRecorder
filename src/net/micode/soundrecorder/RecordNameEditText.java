@@ -75,12 +75,16 @@ public class RecordNameEditText extends EditText {
         mNameChangeListener = listener;
     }
 
-    public void initFileName(String dir, String extension, boolean englishOnly) {
+    public void initFileName(String dir, String extension, boolean englishOnly, String defaultName) {
         mDir = dir;
         mExtension = extension;
 
         // initialize the default name
-        if (!englishOnly) {
+        if (!TextUtils.isEmpty(defaultName)) {
+            SimpleDateFormat dataFormat = new SimpleDateFormat("yyMMdd");
+            String date = " [" + dataFormat.format(Calendar.getInstance().getTime()) + "]";
+            setText(getProperFileName(defaultName + date));
+        } else if (!englishOnly) {
             setText(getProperFileName(mContext.getString(R.string.default_record_name)));
         } else {
             SimpleDateFormat dataFormat = new SimpleDateFormat("MMddHHmmss");
