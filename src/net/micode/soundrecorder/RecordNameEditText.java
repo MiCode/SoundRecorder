@@ -33,14 +33,6 @@ import java.util.Calendar;
 
 public class RecordNameEditText extends EditText {
 
-    public static final String CALENDAR_ID = "calendar_id";
-    public static final String TITLE = "title";
-    public static final String DESCRIPTION = "description";
-    public static final String DTSTART = "dtstart";
-    public static final String DTEND = "dtend";
-
-    public static final int TITLE_NUM = 1;
-
     private Context mContext;
 
     private InputMethodManager mInputMethodManager;
@@ -86,19 +78,16 @@ public class RecordNameEditText extends EditText {
         mNameChangeListener = listener;
     }
 
-    public void initFileName(String dir, String extension, boolean englishOnly, boolean useCalendar) {
+    public void initFileName(String dir, String extension, boolean englishOnly, String defaultName) {
         mDir = dir;
         mExtension = extension;
 
         // initialize the default name
-        if (useCalendar) {
-            String currentEvent = getCurrentCalendarEvent();
-            if (currentEvent != null) {
-                SimpleDateFormat dataFormat = new SimpleDateFormat("yyMMdd");
-                String date = " [" + dataFormat.format(Calendar.getInstance().getTime()) + "]";
-                setText(getProperFileName(currentEvent + date));
-                return;
-            }
+        if (!TextUtils.isEmpty(defaultName)) {
+            SimpleDateFormat dataFormat = new SimpleDateFormat("yyMMdd");
+            String date = " [" + dataFormat.format(Calendar.getInstance().getTime()) + "]";
+            setText(getProperFileName(defaultName + date));
+            return;
         }
 
         if (!englishOnly) {
@@ -107,26 +96,6 @@ public class RecordNameEditText extends EditText {
             SimpleDateFormat dataFormat = new SimpleDateFormat("MMddHHmmss");
             setText(getProperFileName("rec_" + dataFormat.format(Calendar.getInstance().getTime())));
         }
-    }
-
-    private String getCurrentCalendarEvent() {
-        ContentResolver cr = getContext().getContentResolver();
-        Uri uri = Uri.parse("content://com.android.calendar/events");
-
-        String[] columns = {CALENDAR_ID, TITLE, DESCRIPTION, DTSTART, DTEND};
-
-        String selection = "((" + DTSTART + " <= ?) AND (" + DTEND + " >= ?))";
-
-        String curTime = String.valueOf(Calendar.getInstance().getTimeInMillis());
-        String[] selectionArgs = {curTime, curTime};
-
-        Cursor cur = cr.query(uri, columns , selection, selectionArgs, CALENDAR_ID + " ASC");
-
-        if (cur.moveToFirst()) {
-            return  cur.getString(TITLE_NUM);
-        }
-
-        return null;
     }
 
     private String getProperFileName(String name) {

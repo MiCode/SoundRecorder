@@ -55,8 +55,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 
 public class SoundRecorder extends Activity implements Button.OnClickListener,
         Recorder.OnStateChangedListener {
@@ -97,6 +96,18 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
     private static final long SMALL_WHEEL_SPEED_FAST = 200;
 
     private static final long SMALL_WHEEL_SPEED_SUPER_FAST = 200;
+
+    public static final String CALENDAR_ID = "calendar_id";
+
+    public static final String TITLE = "title";
+
+    public static final String DESCRIPTION = "description";
+
+    public static final String DTSTART = "dtstart";
+
+    public static final String DTEND = "dtend";
+
+    public static final int TITLE_NUM = 1;
 
     private String mRequestedType = AUDIO_ANY;
 
@@ -199,11 +210,17 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
 
     private SeekBar mPlaySeekBar;
 
+    private ImageButton mChooseName;
+
     private BroadcastReceiver mSDCardMountEventReceiver = null;
 
     private int mPreviousVUMax;
 
     private boolean mStopUiUpdate;
+
+    private String mDefaultFileName;
+
+    private List<String> mNameVariants;
 
     @Override
     public void onCreate(Bundle icycle) {
@@ -216,6 +233,9 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
         mReceiver = new RecorderReceiver();
         mRemainingTimeCalculator = new RemainingTimeCalculator();
         mSavedRecord = new HashSet<String>();
+
+        mUseCalEventsForNaming = SoundRecorderPreferenceActivity.useCalEventsForNaming(this);
+        mNameVariants = getNameVariantsFromCalendarEvents();
 
         initResourceRefs();
 
@@ -345,6 +365,9 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
             }
         });
 
+        mChooseName = (ImageButton) findViewById(R.id.choose_name);
+        mChooseName.setOnClickListener(this);
+
         mTimerLayout = (LinearLayout) findViewById(R.id.time_calculator);
         mVUMeterLayout = (LinearLayout) findViewById(R.id.vumeter_layout);
         mSeekBarLayout = (LinearLayout) findViewById(R.id.play_seek_bar_layout);
@@ -379,9 +402,14 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
             extension = FILE_EXTENSION_3GPP;
         }
 
+        String defaultName = null;
+        if (SoundRecorderPreferenceActivity.useCalEventsForNaming(this)) {
+            defaultName = mDefaultFileName;
+        }
+
         // for audio which is used for mms, we can only use english file name
         // mShowFinishButon indicates whether this is an audio for mms
-        mFileNameEditText.initFileName(mRecorder.getRecordDir(), extension, mShowFinishButton, SoundRecorderPreferenceActivity.useCalEventsForNaming(this));
+        mFileNameEditText.initFileName(mRecorder.getRecordDir(), extension, mShowFinishButton, defaultName);
     }
 
     private void startRecordPlayingAnimation() {
@@ -449,7 +477,7 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
         if (!button.isEnabled())
             return;
 
-        if (button.getId() == mLastButtonId && button.getId() != R.id.newButton) {
+        if (button.getId() == mLastButtonId && button.getId() != R.id.newButton && button.getId() != R.id.choose_name) {
             // as the recorder state is async with the UI
             // we need to avoid launching the duplicated action
             return;
@@ -491,7 +519,23 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
             case R.id.deleteButton:
                 showDeleteConfirmDialog();
                 break;
+            case R.id.choose_name:
+                chooseFileNameDialog();
+                break;
         }
+    }
+
+    private void chooseFileNameDialog() {
+        AlertDialog.Builder ab = new AlertDialog.Builder(SoundRecorder.this);
+        ab.setTitle(R.string.choose_file_name);
+        ab.setItems(mNameVariants.toArray(new String[mNameVariants.size()]), new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface d, int choice) {
+                mDefaultFileName = mNameVariants.get(choice);
+                updateChooseNameVisibility();
+                resetFileNameEditText();
+            }
+        });
+        ab.show();
     }
 
     private void startRecording() {
@@ -565,6 +609,42 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
         }
     }
 
+    private List<String> getNameVariantsFromCalendarEvents() {
+        ContentResolver cr = getContentResolver();
+        Uri uri = Uri.parse("content://com.android.calendar/events");
+
+        String[] columns = {CALENDAR_ID, TITLE, DESCRIPTION, DTSTART, DTEND};
+
+        String selection = "((" + DTSTART + " <= ?) AND (" + DTEND + " >= ?))";
+
+        String curTime = String.valueOf(Calendar.getInstance().getTimeInMillis());
+        String[] selectionArgs = {curTime, curTime};
+
+        Cursor cur = cr.query(uri, columns , selection, selectionArgs, CALENDAR_ID + " ASC");
+
+        List<String> result = new ArrayList<String>();
+        while(cur.moveToNext()) {
+            result.add(cur.getString(TITLE_NUM));
+        }
+
+        resetDefaultName();
+        return result;
+    }
+
+    private void updateChooseNameVisibility() {
+        if (mUseCalEventsForNaming && mNameVariants != null && mNameVariants.size() > 1) {
+            mChooseName.setVisibility(View.VISIBLE);
+        } else {
+            mChooseName.setVisibility(View.GONE);
+        }
+    }
+
+    private void resetDefaultName() {
+        if (mNameVariants != null && !mNameVariants.isEmpty()) {
+            mDefaultFileName = mNameVariants.get(0);
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -573,6 +653,7 @@ public class SoundRecorder extends Activity implements Button.OnClickListener,
 
         if (mUseCalEventsForNaming != useCalEventsForNaming) {
             mUseCalEventsForNaming = useCalEventsForNaming;
+            mNameVariants = getNameVariantsFromCalendarEvents();
             resetFileNameEditText();
         }
 
