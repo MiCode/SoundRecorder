@@ -36,7 +36,7 @@
             android:launchMode="singleTop"
             android:name="SoundRecorder"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            android:theme="@style/CustomTheme" >
             <intent-filter >
                 <action android:name="android.intent.action.MAIN" />
 
@@ -62,7 +62,7 @@
             android:label="@string/preferences_title"
             android:launchMode="singleTop"
             android:name="SoundRecorderPreferenceActivity"
-            android:theme="@android:style/Theme.NoTitleBar" >
+            android:theme="@style/CustomTheme" >
         </activity>
 
         <service
